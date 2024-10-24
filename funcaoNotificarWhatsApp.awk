@@ -21,5 +21,3 @@ function notificarWhatsApp(campanha,idChat,texto){
 #BEGIN{
 #    notificarWhatsApp("DIB","385910829","olá")
 #}
-
-
