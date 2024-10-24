@@ -1,6 +1,7 @@
 #!/usr/bin/env -S awk -f
 
 function criarSubscriber(tipo, telefone, primeiroNome, sobreNome,campanha) {
+    deletar = "nao"
     switch (campanha){
         case "DIB" :                  api = "c7e572f0-c17b-4304-9478-b68641234d6c"
         break
@@ -19,8 +20,20 @@ function criarSubscriber(tipo, telefone, primeiroNome, sobreNome,campanha) {
 
     comando | getline idSubscriber
     print idSubscriber
-    return idSubscriber
-
+    if (deletar == "sim"){
+        while (1){
+            print "Deseja deletar o subscriber "idSubscriber"?(TECLE ENTER SE SUA RESPOSTA FOR SIM)"
+            getline resposta < "-"
+            if (resposta == ""){
+                #deletar = "sim"
+                #return idSubscriber
+                #return campanha
+                deletarSubscriber(idSubscriber,campanha)
+                break
+            }
+        } # WHILE RESPOSTA
+    } # IF deletarSubscriber
     system("sleep 2s")
+    return idSubscriber
 }
 
