@@ -72,11 +72,23 @@ NR > 1{
 		textoTelefone = "Telefone: *"$4"*"
 		print $4, "tem todos os numeros"
 		notificarWhatsApp(campanha,idChat,""textoNome" "textoTelefone"")
+	} # ELSE IF
+	else {
+		qtdNormal += 1
+		idChat = "385910829"
+		textoNome = "Nome: *"$3"*\\n\\n"
+		quatroDigito = substr($4,1,4)"9"
+		quintoEmDiante = substr($4,5)
+		$4 = ""quatroDigito""quintoEmDiante""
+		textoTelefone = "Telefone: *"$4"*"
+		print $4, "CAIU NO ELSE",NR
+		notificarWhatsApp(campanha,idChat,""textoNome" "textoTelefone"")
 	}
 }
 END{
-	texto = toupper("Total de registros "qtdsNaoContinha" "+" "qtdsContinha"")
+	texto = toupper("*Total de registros*")
+	totalDeRegistros = qtdsNaoContinha + qtdsContinha + qtdNormal
 	print "Continha =",qtdsContinha"\nNão continha",qtdsNaoContinha
-	notificarWhatsApp(campanha,idChat,texto)
+	notificarWhatsApp(campanha,idChat,texto" :"totalDeRegistros)
 }
 
