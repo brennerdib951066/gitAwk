@@ -51,25 +51,32 @@ BEGIN{
 NR > 1{
 	print "Sua campanha é:",campanha
 	#system("sleep 10")
+
 	if (length($4) == 11 && $4 !~ /^55/) {
 		qtdsNaoContinha += 1
 		#campanha = "DIB"
 		idChat = "385910829"
 		#system("sleep 2")
 		$4 = "55" $4 # acionando o 55 na inicial da coluna $4
+		textoNome = "Nome: *"$3"*\\n\\n"
+		textoTelefone = "Telefone: *"$4"*"
 		print $4,"Modificando no IF"
-		notificarWhatsApp(campanha,idChat,$4)
+		notificarWhatsApp(campanha,idChat,""textoNome" "textoTelefone"")
 	} # IF PARA VERIFICAR SE A COLUNA $4 que é de telefone é = 11 e não comece com 55
 	else if (length($4) == 13 && $4 ~ /^55/){
 		qtdsContinha += 1
 		#campanha = "DIB"
 		idChat = "385910829"
 		#system("sleep 2")
+		textoNome = "Nome: *"$3"*\\n\\n"
+		textoTelefone = "Telefone: *"$4"*"
 		print $4, "tem todos os numeros"
-		notificarWhatsApp(campanha,idChat,$4)
+		notificarWhatsApp(campanha,idChat,""textoNome" "textoTelefone"")
 	}
 }
 END{
+	texto = toupper("Total de registros "qtdsNaoContinha" "+" "qtdsContinha"")
 	print "Continha =",qtdsContinha"\nNão continha",qtdsNaoContinha
+	notificarWhatsApp(campanha,idChat,texto)
 }
 
