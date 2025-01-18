@@ -1,0 +1,1 @@
+[6295:6295:0100/000000.371628:ERROR:zygote_linux.cc(665)] write: Pipe quebrado (32)
