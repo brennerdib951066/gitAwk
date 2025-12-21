@@ -5,11 +5,27 @@ BEGIN {
     ARGC=2
     FS=ARGV[2]
     OFS=FS
-    dataInicial = ARGV[3]
-    dataFinal = ARGV[4]
+    dataInicial = int(ARGV[3])
+    dataFinal = int(ARGV[4])
+
+
     tipoFiltro = ARGV[5]
+    nomeArquivo = "novo_" ARGV[3] "_" ARGV[4] "_"  tolower(gensub(/\..*/, "", 1, ARGV[1])) ".csv"
+    #exit
+
+    # Verificações
     if (ARGV[2] !~ /[;,:\t]/) {
         system("printf \"%b\n\" \"\\e[31;1mPreciso que mande o delimitador [;.,:\t]\\e[m\"")
+        exit
+    }
+
+    if (!dataInicial) {
+       system("printf \"%b\n\" \"\\e[33;2mEscolha um ano inicial para prosseguir\\e[m\"")
+       exit
+    }
+
+    if (!dataFinal) {
+        system("printf \"%b\n\" \"\\e[35;2mEscolha um ano final para prosseguir\\e[m\"")
         exit
     }
 
@@ -37,125 +53,81 @@ BEGIN {
 NR == 1 {
     campoAdicional = NF+1
     $campoAdicional = "responsavel dado"
-    print $1,$2,$3,$4,$5,$6,$7,$campoAdicional
+    print $1,$2,$3,$4,$5,$6,$7,$campoAdicional > nomeArquivo
 }
 
 {
     $0 = tolower($0)
     $campoAdicional = "vital cross"
+    dataParametro = gensub(/-.*/,"","g",$3)
+    #print "data" dataParametro
 }
-$3 ~ dataInicial || $3 ~ dataFinal {
+dataParametro >= dataInicial &&  dataParametro <= dataFinal {
 
-    qtd++
     gsub(/ .*/,"",$3)
+    gsub(/ /,"",$4)
 
-    # Base $4
-    gsub(/ |^0/,"",$4)
-    dd = substr($4,1,2)
-    numeroBase = int(substr($4,3,1))
-    numeroCompleto = substr($4,4)
+    ddd = int(substr($4,1,2))
+    nonoDigito = "9"
 
-    # Base $5
-    gsub(/ /,"",$5)
-    dd2 = substr($5,1,2)
-    numeroBase2 = int(substr($5,3,1))
-    numeroCompleto2 = substr($5,4)
+    numeroCompleto = int(substr($4,3))
+    numeroPre = int(substr(numeroCompleto,1,2))
+    numeroCorrigido = ddd nonoDigito numeroCompleto
 
-
-    #length($4)
-    #exit
-    if (length($4)>0) {
-#         if (length($5) <= 5) {
-# #             print "MENOR OU IGUAL A 5",length($5)
-#             $5 = substr($4,1,2)"9"substr($4,3)
-#         }
-
-        if(tipoFiltro ~ /fixo/) {
-
-            if (numeroBase <= 7) {
-                numeroFixo = dd numeroBase numeroCompleto
-                $4 = numeroFixo
+    numeroCompleto2 = int(substr($5,3))
+    numeroPre2 = int(substr(numeroCompleto2,1,2))
+    numeroCorrigido2 = ddd nonoDigito numeroCompleto2
 
 
-
-                if (numeroBase2 >= 6) {
-                    numeroMovel = dd2 "9" numeroBase2 numeroCompleto2
-                    $5 = numeroMovel
-                }
-
-                print
-            } # IF NUMEROBASE
-        } # TIPOFILTRO
-        else {
-            if (numeroBase >= 7) {
-                             numeroMovel = dd "9" numeroBase numeroCompleto
-                             $4 = numeroMovel
-                             if (numeroBase2 >= 6) {
-                                 numeroMovel = dd2 "9" numeroBase2 numeroCompleto2
-#                                  print "MAIOR OU IGUAL A NUMERO BASE 2",length($5)
-                                 $5 = numeroMovel
-                             }
-
+    if (tipoFiltro ~ /movel/) {
+        if (numeroPre >= 50 && numeroPre <= 99) {
+            if (length($5)<=3) {
+                numeroCorrigido2 = numeroCorrigido
+                #print numeroCorrigido2
             }
-            print $4,$5
+            #print $1,$2,$3,"55" numeroCorrigido,"55" numeroCorrigido2,$6,$7
+            print $1,$2,$3,numeroCorrigido,numeroCorrigido2,$6,$7 > nomeArquivo
         }
-#         if (length($5)>0) {
-#             if(tipoFiltro ~ /fixo/) {
-#
-#                 if (numeroBase <= 6) {
-#                     numeroFixo = dd numeroBase numeroCompleto
-#                     $4 = numeroFixo
-#
-#                     if (length($5) < 4) {
-#                         $5 = $4
-#                     }
-#
-#                     if (numeroBase2 >= 6) {
-#                         numeroMovel = dd2 "9" numeroBase2 numeroCompleto2
-#                         $5 = numeroMovel
-#                     }
-#
-#                     #print $4
-#                     #print $4,"FIXO"
-#                     #print $4,$5
-#                     print
-#                 }
-#             }
+    }
 
-#         if (numeroBase >= 7) {
-#             numeroMovel = dd "9" numeroBase numeroCompleto
-#             $4 = numeroMovel
-#
-# #             print $4
-#         }
-#
-#         # Verificando o campo 5
-#         if (numeroBase2 <= 6) {
-#             numeroFixo2 = dd2 numeroBase2 numeroCompleto2
-#             $5 = numeroFixo2
-#             if (length($5)<=3) {
-#                 #print "MENOR",length($5)
-#                 $5 = $4
-#
-#             }
-#         }
-#
-#         if (numeroBase2 >= 7) {
-#             numeroMovel2 = dd2 "9" numeroBase2 numeroCompleto2
-#             $5 = numeroMovel2
-#
-#             #             print $4
-#         }
+    if (tipoFiltro ~ /fixo/) {
+        sub("9","",numeroCorrigido)
+        sub("9","",numeroCorrigido2)
+        if (numeroPre >= 30 && numeroPre <= 39) {
+            if (length($5)<=3) {
+                numeroCorrigido2 = numeroCorrigido
+                #print numeroCorrigido2
+            }
+            if (length($4)<=7) {
+                numeroCorrigido = "Numero invalido"
+                #print numeroCorrigido2
+            }
+            if (length($5)<=7) {
+                 numeroCorrigido2 = numeroCorrigido
+                 #print numeroCorrigido2
+             }
+             #print $1,$2,$3,"55" numeroCorrigido,"55" numeroCorrigido2,$6,$7
+            print $1,$2,$3,numeroCorrigido,numeroCorrigido2,$6,$7 > nomeArquivo
+        }
+    }
 
+    #print ddd nonoDigito numeroCompleto,$5
 
+    #print
 
-    } # IF PRINCIPAL
 }
 
 
-# END {
-#     print "TOTAL:",qtd
-# }
+  END {
+
+        comando = "curl -sX POST -w \"%{http_code}\" \"https://3c.fluxoti.com/api/v1/campaigns?api_token=0ThoHgXPfj3rFp6EZdVc1811q8u7ujL4QcCdvJYOpi1AYe77dC2qIh1jQlbS\" -H \"accept: application/json\" -H \"Content-Type: application/x-www-form-urlencoded\" -d \"name="nomeArquivo"&extension_number=731295&start_time=09%3A00&qualification_list=24542&end_time=18%3A00\""
+        #FS=":"
+        system(comando)
+        print
+        system("printf \"%b\n\" \"\\e[31;1mAbrindo seu arquivo\\e[m\"; sleep 2s")
+        system("soffice "nomeArquivo"")
+
+}
 #{
     #print NF
 #}
