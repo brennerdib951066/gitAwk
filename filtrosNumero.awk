@@ -1,5 +1,28 @@
 #!/usr/bin/env -S gawk -f
 
+function exibir(cor,aviso) {
+    if (!cor) {
+        printf "Por favor envie sempre a cor correspondente ao seu aviso!"
+        #exit
+    }
+    cor = tolower(cor)
+    switch (cor) {
+        case "vermelho":
+            # VERDE
+            escape = "1"
+            break
+        case "verde":
+            # VERDE
+            escape = "2"
+        case "amarelo":
+            # VERDE
+            escape = "3"
+
+    } # switch
+
+    return system("printf \"%b\n\" \"\\e[3"escape";1m"aviso"\\e[m\"")
+}
+
 BEGIN {
 
     ARGC=2
@@ -17,11 +40,12 @@ BEGIN {
     # Bubble
     token = "aeb0a18262e8df10973c3ba083735467"
     url = "https://app.vitalcross.com.br/version-test/api/1.1/obj/bancoLigacao"
+    chaveBubble = "no"
     #exit
 
     # Verificações
     if (ARGV[2] !~ /[;,:\t]/) {
-        system("printf \"%b\n\" \"\\e[31;1mPreciso que mande o delimitador [;.,:\t]\\e[m\"")
+        exibir("amarelo","Help: ./filtrosNumero.awk arquivo.csv delimitador anoInicial anoFinal movel|fixo")
         exit
     }
 
@@ -42,15 +66,37 @@ BEGIN {
     tipoFiltro = tolower(tipoFiltro)
     switch (tipoFiltro) {
         case "movel" :
-            print "parabéns movel"
+            #print "parabéns movel"
             break
         case "fixo":
-            print "parabéns fixo"
+            #print "parabéns fixo"
             break
         default :
             print "Escolha entre MOVEL ou FIXO"
             exit
     }
+
+    while (1) {
+        print "Deseja mandar os dados para o bubble? [s/n]"
+        getline resposta < "-"
+        # Verifiacando se a entrada esta vazia
+        if (match(/[^A-Za-z0-9]/,resposta)) {
+            print "É vazio"
+        }
+
+        if (length(resposta)>=2) {
+            print "Sua resposta deve conter apenas S ou N"
+        }
+        resposta = tolower(resposta)
+        switch (resposta) {
+            case "s" :
+                print "Parabens escolheu sim"
+                break
+            case "n" :
+                print "Parabens escolheu não"
+        } # switch
+        break
+    } # WHLE
 
     #     print dataInicial,dataFinal
     #     exit
@@ -101,6 +147,9 @@ dataParametro >= dataInicial &&  dataParametro <= dataFinal {
             }
             print $1,$2,$3,"55" numeroCorrigido,"55" numeroCorrigido2,$6,$7,$campoAdicional > nomeArquivo
 
+            if (resposta !~ /s/) {
+                next
+            }
             comandoCriarBubble = "curl -sX POST -H \"Content-Type: application/x-www-form-urlencoded\" -H \"Autorization: "token"\" "url" -H \"accept: application/json\"  -d \"nomeFantasia="$2"&dataAtivacao="$3"&telefoneCliente=55"numeroCorrigido"&email="$6"&razaoSocial="$7"&responsavelDoDado="$campoAdicional"\"; sleep 0.5s"
             #FS=":"
             system(comandoCriarBubble)
@@ -131,9 +180,14 @@ dataParametro >= dataInicial &&  dataParametro <= dataFinal {
                 next
             }
             print $1,$2,$3,"55" numeroCorrigido,"55" numeroCorrigido2,$6,$7,$campoAdicional > nomeArquivo
+
+            if (resposta !~ /s/) {
+                next
+            }
             comandoCriarBubble = "curl -sX POST -H \"Content-Type: application/x-www-form-urlencoded\" -H \"Autorization: "token"\" "url" -H \"accept: application/json\"  -d \"nomeFantasia="$2"&dataAtivacao="$3"&telefoneCliente=55"numeroCorrigido"&email="$6"&razaoSocial="$7"&responsavelDoDado="$campoAdicional"\"; sleep 0.5s"
             #FS=":"
             system(comandoCriarBubble)
+
             #print $1,$2,$3, "55" numeroCorrigido, "55" numeroCorrigido2,$6,$7 > nomeArquivo
         }
     }
@@ -151,9 +205,9 @@ END {
 
 
     print
-    print qtd,"QUANTIDADE"
+    #print qtd,"QUANTIDADE"
 
-    if (deggub ~ /-d|debug/) {
+    if (deggub ~ /-d|debug/ || ! qtd) {
         exit
     }
     #system("echo -e \"\\E[31;1mAbrindo o arquivo "nomeArquivo"\\E[m\"; sleep 2")
