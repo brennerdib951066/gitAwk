@@ -63,6 +63,9 @@ BEGIN {
         system("printf \"%b\n\" \"\\e[31;1mMande sempre se filtro sera MOVÉL ou FIXO\\e[m\"")
         exit
     }
+    # verificando o libreoffice
+    system("bash -c \"type -P soffice >/dev/null\" || { echo \"Instalando o LIBREOFFICE no sistema\" && sleep 3s && sudo apt install libreoffice -y ;}")
+
     tipoFiltro = tolower(tipoFiltro)
     switch (tipoFiltro) {
         case "movel" :
