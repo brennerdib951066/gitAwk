@@ -1,5 +1,8 @@
 #!/usr/bin/env -S gawk -f
 
+# Programa criado para automatizar a criação de planilhas para dados de LEADS para seguros em saúde
+# Versão: 1.0.0.2
+
 function exibir(cor,aviso) {
     if (!cor) {
         printf "Por favor envie sempre a cor correspondente ao seu aviso!"
@@ -63,9 +66,6 @@ BEGIN {
         system("printf \"%b\n\" \"\\e[31;1mMande sempre se filtro sera MOVÉL ou FIXO\\e[m\"")
         exit
     }
-    # verificando o libreoffice
-    system("bash -c \"type -P soffice >/dev/null\" || { echo \"Instalando o LIBREOFFICE no sistema\" && sleep 3s && sudo apt install libreoffice -y ;}")
-
     tipoFiltro = tolower(tipoFiltro)
     switch (tipoFiltro) {
         case "movel" :
@@ -80,16 +80,24 @@ BEGIN {
     }
 
     while (1) {
-        print "Deseja mandar os dados para o bubble? [s/n]"
+        tentativa++
+        system("printf \"%b\n: \" \"\\e[37;1mDeseja mandar os dados para o bubble? [s/n] {"tentativa"}\\e[m\"")
         getline resposta < "-"
+        if (tentativa==3) {
+            system("printf \"%b %b\" \"\\e[33;1mLimite maximo de tentativas\\e[m\" \"\\e[31;1m{"tentativa"}\\e[m\"")
+            exit
+        }
         # Verifiacando se a entrada esta vazia
         if (match(/[^A-Za-z0-9]/,resposta)) {
-            print "É vazio"
+            #print "É vazio"
+            continue
         }
 
         if (length(resposta)>=2) {
             print "Sua resposta deve conter apenas S ou N"
+            continue
         }
+
         resposta = tolower(resposta)
         switch (resposta) {
             case "s" :
